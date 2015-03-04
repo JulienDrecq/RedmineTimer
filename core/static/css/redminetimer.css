@@ -1,0 +1,82 @@
+/** Custom CSS */
+/* Author: Julien DRECQ */
+
+body {
+	background-color: #FFFFFF;
+}
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 0.001em solid #9B9F9F;
+    margin: 1em 0;
+    padding: 0;
+    width: 80%;
+    margin-left: 10%;
+}
+
+/** LOGIN PAGE **/
+
+.form-login {
+	margin-top: 80px;
+  margin-bottom: 80px;
+}
+
+.form-login .form-signin {
+    max-width: 380px;
+    padding: 15px 35px 45px;
+    margin: 0 auto;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+
+}
+
+.form-lang {
+    max-width: 380px;
+    padding-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: right;
+    background-color: #fff;
+}
+
+.form-login .form-signin-heading,
+.form-login .checkbox {
+  margin-bottom: 30px;
+  font-weight: normal;
+}
+
+.form-login {
+  position: relative;
+  font-size: 16px;
+  height: auto;
+  padding: 10px;
+}
+
+.form-login input[type="text"], .form-login input[type="password"] {
+    margin-bottom: 20px;
+    position: relative;
+    font-size: 16px;
+    height: auto;
+    padding: 10px;
+}
+
+/** END LOGIN PAGE **/
+
+.table-header {
+    color: gray;
+    font-weight: bold;
+    margin-left: 5px;
+    margin-bottom: 50px;
+}
+
+.navbar-default {
+    border-bottom: 3px solid #E54E53;
+}
+
+.previous_next {
+    color: #E54E53;
+}
+
+
