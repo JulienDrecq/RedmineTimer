@@ -17,7 +17,6 @@ hr {
 }
 
 /** LOGIN PAGE **/
-
 .form-login {
 	margin-top: 80px;
   margin-bottom: 80px;
@@ -61,7 +60,6 @@ hr {
     height: auto;
     padding: 10px;
 }
-
 /** END LOGIN PAGE **/
 
 .table-header {
@@ -78,5 +76,21 @@ hr {
 .previous_next {
     color: #E54E53;
 }
+
+/** NEW TIMER **/
+.container-result-issue {
+    text-align: center;
+    width:100%;
+}
+.number-issue, .form-error, .start-timer {
+    display:none;
+}
+.well-issue {
+    margin-top: 10px;
+}
+#form-loading  {
+    display: none;
+}
+/** END NEW TIMER **/
 
 

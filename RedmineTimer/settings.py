@@ -86,3 +86,5 @@ STATIC_URL = '/static/'
 AUTHENTICATION_BACKENDS = (
     'redmine_auth.backends.RedmineBackend',
 )
+
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
