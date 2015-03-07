@@ -1,0 +1,45 @@
+{% load static %}
+{% load i18n %}
+    <!-- Modal NEW TIMER -->
+    <div class="modal fade" id="new-timer" tabindex="-1" role="dialog" aria-labelledby="new-timer-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="new-timer-label">Add new timer</h4>
+                </div>
+                <form class="form-horizontal" method="post" action="/new_timer" id="form-new-timer">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <fieldset>
+                            <div class="control-group">
+                                <div class="controls has-feedback">
+                                    {{ issue_form.issue }}
+                                    <span id="form-loading" class="form-control-feedback" aria-hidden="true">
+                                        <img src="{% static './images/ajax-loader.gif' %}" />
+                                    </span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="container container-result-issue">
+                        <div class="alert alert-danger form-error"></div>
+                        <span class="number-issue">
+                            <b> Issue </b>
+                            <a target='_blank' class="link-issue" href=""></a>
+                            <div class="well well-issue">
+                                <p><b class="project-issue"></b></p>
+                                <p class="name-issue"></p>
+                            </div>
+                        </span>
+                    </div>
+                </form>
+                <div class="modal-footer start-timer">
+                    <a class="next-url"><button class="btn btn-danger">Start timer</button></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- End MODAL NEW TIMER -->

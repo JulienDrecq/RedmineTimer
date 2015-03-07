@@ -1,0 +1,24 @@
+{% extends "core/base/base.html" %}
+
+{% load i18n %}
+
+{% block title %} {% trans 'Home' %} {% endblock %}
+
+{% block header %}
+    {% include 'core/base/header.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <button type="button" class="btn btn-danger pull-right" data-toggle="modal" data-target="#new-timer">
+            <span class="glyphicon glyphicon-plus-sign"></span> New timer
+        </button>
+    </div>
+</div>
+
+{% block new_timer %}
+    {% include 'core/modal/new_timer.html' %}
+{% endblock %}
+
+{% endblock %}
