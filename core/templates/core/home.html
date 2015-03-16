@@ -14,6 +14,41 @@
         <button type="button" class="btn btn-danger pull-right" data-toggle="modal" data-target="#new-timer">
             <span class="glyphicon glyphicon-plus-sign"></span> New timer
         </button>
+
+        <br /><br /><br />
+        <table class="table table-condensed table-lists-contacts">
+            <thead>
+                <tr>
+                    <th> Description</th>
+                    <th> Projet</th>
+                    <th> Link On Redmine </th>
+                    <th> Timer </th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for issue in issues %}
+                <tr>
+                    <td> <a href="{% url 'core_issue' issue_id=issue.id %}">{{ issue }}</a></td>
+                    <td> {{ issue.project }}</td>
+                    <td> <a target="_blank" href="{{ issue.get_link_issue_on_redmine }}">#{{ issue.redmine_issue_id }}</a>
+                    <td> <a href=""><span class="glyphicon glyphicon-play"> </span></a> <a href=""><span class="glyphicon glyphicon-stop"> </span></a> </td>
+                    <td>
+                        <span class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-cog"></span> <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li> <a href="#"><span class="glyphicon glyphicon-refresh"></span> Synchronize </a></li>
+                                <li> <a href="#"><span class="glyphicon glyphicon-pencil"></span> Edit</a></li>
+                                <li> <a href="#"><span class="glyphicon glyphicon-remove"></span> Unlink</a></li>
+                            </ul>
+                        </span>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 

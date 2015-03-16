@@ -1,0 +1,45 @@
+{% extends "core/base/base.html" %}
+
+{% load i18n %}
+
+{% block title %} Timer {{ issue.id }} {% endblock %}
+
+{% block header %}
+    {% include 'core/base/header.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <a href="{% url 'core_home' %}" class="pull-left">
+                <button type="button" class="btn btn-danger btn-xs" aria-label="Left Align">
+                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                    Back
+                </button>
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <h4 class="text-center">
+            Issue
+            <a target="_blank" href="{{ issue.get_link_issue_on_redmine }}">
+                #{{ issue.redmine_issue_id }}
+            </a>
+        </h4>
+        <h6 class="text-center">
+            {{ issue.date }}
+        </h6>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <br />
+            <p><b>Issue : </b>{{ issue }}</p>
+            <p><b>Project : </b>{{ issue.project }}</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

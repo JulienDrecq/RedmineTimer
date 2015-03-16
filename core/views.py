@@ -1,26 +1,31 @@
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from core.forms import LoginForm, IssueForm
+from core.models import Issue
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from redmine_auth import settings
 from django.http import HttpResponse
+from django.db.models import Q
 from redmine import Redmine
 from redmine.exceptions import ForbiddenError, ResourceNotFoundError
 import json
 import logging
+from datetime import datetime
 logger = logging.getLogger(__name__)
 
 URL_RENDER = {
     'view_login': 'core/login.html',
     'view_home': 'core/home.html',
+    'view_issue': 'core/issue.html',
 }
 
 
 @login_required(login_url='/login')
 def view_home(request):
     issue_form = IssueForm()
+    issues = Issue.objects.filter(Q(user_id=request.user)).order_by('id')
     return render(request, URL_RENDER['view_home'], locals())
 
 
@@ -90,9 +95,34 @@ def new_timer(request):
 
 @login_required(login_url='/login')
 def start_new_timer(request):
+    redmine = request.session['session_redmine']
     if request.method == "GET":
         number_issue = request.REQUEST.get('number_issue', False)
         if number_issue:
-            pass
+            try:
+                issue = redmine.issue.get(int(number_issue))
+                project_name = issue.project.name
+                search_issue = Issue.objects.filter(Q(user_id=request.user, redmine_issue_id=number_issue,
+                                                      date=datetime.now())).order_by('id')
+                if search_issue:
+                    issue = search_issue[0]
+                    return redirect(reverse(view_issue, kwargs={'issue_id': issue.id}))
+                else:
+                    created_issue = Issue(user_id=request.user, redmine_issue_id=number_issue,
+                                          name=str(issue), project=project_name)
+                    created_issue.save()
+            except ResourceNotFoundError:
+                pass
+            except Exception, e:
+                pass
     return redirect(reverse(view_home))
+
+
+@login_required(login_url='/login')
+def view_issue(request, issue_id):
+    issue = Issue.objects.filter(Q(user_id=request.user, id=issue_id))
+    if not issue:
+        return redirect(reverse(view_home), locals())
+    issue = issue[0]
+    return render(request, URL_RENDER['view_issue'], locals())
 

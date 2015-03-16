@@ -9,4 +9,5 @@ urlpatterns = patterns('',
     url(r'^logout', 'core.views.view_logout', name='core_logout'),
     url(r'^new_timer', 'core.views.new_timer', name='core_new_timer'),
     url(r'^start_new_timer', 'core.views.start_new_timer', name='core_start_new_timer'),
+    url(r'^issue/(?P<issue_id>\d+)$', 'core.views.view_issue', name='core_issue'),
 )
