@@ -11,7 +11,7 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <button type="button" class="btn btn-danger pull-right" data-toggle="modal" data-target="#new-timer">
+        <button type="button" class="btn btn-sucess pull-right" data-toggle="modal" data-target="#new-timer">
             <span class="glyphicon glyphicon-plus-sign"></span> New timer
         </button>
 
@@ -29,8 +29,8 @@
             <tbody>
             {% for issue in issues %}
                 <tr>
-                    <td> <a href="{% url 'core_issue' issue_id=issue.id %}">{{ issue }}</a></td>
-                    <td> {{ issue.project }}</td>
+                    <td style="width: 50%;"> <a href="{% url 'core_issue' issue_id=issue.id %}">{{ issue }}</a></td>
+                    <td style="width: 25%;"> {{ issue.project }}</td>
                     <td> <a target="_blank" href="{{ issue.get_link_issue_on_redmine }}">#{{ issue.redmine_issue_id }}</a>
                     <td> <a href=""><span class="glyphicon glyphicon-play"> </span></a> <a href=""><span class="glyphicon glyphicon-stop"> </span></a> </td>
                     <td>

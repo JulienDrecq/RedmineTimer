@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 class Issue(models.Model):
-    user_id = models.ForeignKey(User)
+    user = models.ForeignKey(User)
     redmine_issue_id = models.BigIntegerField()
     name = models.CharField(max_length=256)
     project = models.CharField(max_length=256)
@@ -18,5 +18,13 @@ class Issue(models.Model):
         return "#%s - %s" % (self.redmine_issue_id, self.name)
 
     def get_link_issue_on_redmine(self):
-        return u"%s/%s" % (settings.REDMINE_SERVER_URL, self.redmine_issue_id)
+        return u"%s/issues/%s" % (settings.REDMINE_SERVER_URL, self.redmine_issue_id)
 
+
+class TimeEntry(models.Model):
+    user = models.ForeignKey(User)
+    issue = models.ForeignKey(Issue)
+    time = models.FloatField()
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(auto_now_add=False)
+    comments = models.CharField(max_length=256)
