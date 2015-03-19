@@ -24,6 +24,7 @@ class Issue(models.Model):
 class TimeEntry(models.Model):
     user = models.ForeignKey(User)
     issue = models.ForeignKey(Issue)
+    redmine_timentry_id = models.BigIntegerField()
     time = models.FloatField()
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(auto_now_add=False)

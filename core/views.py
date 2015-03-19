@@ -112,6 +112,7 @@ def start_new_timer(request):
                     created_issue = Issue(user=request.user, redmine_issue_id=number_issue,
                                           name=str(issue), project=project_name)
                     created_issue.save()
+                    return redirect(reverse(view_issue, kwargs={'issue_id': created_issue.id}))
             except ResourceNotFoundError:
                 pass
             except Exception, e:
@@ -134,6 +135,18 @@ def synchronize_time_entries(request, issue_id):
     if not issue:
         return redirect(reverse(view_issue, kwargs={'issue_id': issue_id}), locals())
     issue = issue[0]
+    redmine = request.session['session_redmine']
+    redmine_issue = redmine.issue.get(issue.redmine_issue_id)
+    for entry in redmine_issue.time_entries:
+        if entry.user.id == request.user.redmineuser.redmine_user_id:
+            search_entry = TimeEntry.objects.filter(Q(user=request.user, redmine_timentry_id=entry.id,
+                                                      issue=issue)).order_by('id')
+            if search_entry:
+                timeentry = search_entry[0]
+            else:
+                created_entry = TimeEntry(user=request.user, issue=issue, redmine_timentry_id=entry.id,
+                                          time=entry.hours, comments=entry.comments, end_date=datetime.now())
+                created_entry.save()
     return redirect(reverse(view_issue, kwargs={'issue_id': issue.id}), locals())
 
 
