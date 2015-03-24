@@ -1,0 +1,44 @@
+{% load static %}
+{% load i18n %}
+    <!-- Modal NEW FILTER -->
+    <div class="modal fade" id="filter-date" tabindex="-1" role="dialog" aria-labelledby="new-filter-date-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="new-filter-date-label">Timeline filter by date</h4>
+                </div>
+                <form id="form-filter-date" method="post" action="{% url 'core_filter_date' %}">
+                    <div class="row">
+                        <div class="col-md-6 col-md-offset-3">
+                            {% csrf_token %}
+                            <div id="sandbox-start-date">
+                                <div class="input-group date">
+                                    {{ filter_date_form.start_date }}
+                                    <span class="input-group-addon">
+                                        <i class="glyphicon glyphicon-calendar"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                           <div id="sandbox-end-date">
+                                <div class="input-group date">
+                                    {{ filter_date_form.end_date }}
+                                    <span class="input-group-addon">
+                                        <i class="glyphicon glyphicon-calendar"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <a class="next-url"><button class="btn btn-success btn-sm">
+                            <span class="glyphicon glyphicon-filter"></span>
+                            Filter</button></a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End MODAL FILTER DATE -->

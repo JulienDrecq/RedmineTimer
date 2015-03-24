@@ -1,0 +1,103 @@
+{% extends "core/base/base.html" %}
+
+{% load i18n %}
+{% load tools %}
+
+{% block title %} Timer of Issue #{{ timer.redmine_issue_id }} {% endblock %}
+
+{% block header %}
+    {% include 'core/base/header.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <a href="{% url 'core_home' %}" role="button" class="btn btn-danger btn-xs pull-left">
+                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                Back
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <br />
+            {% for message in messages %}
+                <div
+                    {% if message.extra_tags %}
+                        class="alert text-center {{ message.extra_tags }}"
+                    {% else %}
+                        class="alert text-center alert-info"
+                    {% endif %}
+                    role="alert">
+                        {% if message.extra_tags == 'alert-danger' %}
+                            An error has occurred !
+                            <br />
+                        {% endif %}
+                        {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row">
+        <h4 class="text-center">
+            Issue
+            <a target="_blank" href="{{ timer.get_link_issue_on_redmine }}">
+                #{{ timer.redmine_issue_id }}
+            </a>
+        </h4>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <br />
+            <p><b>Issue : </b>{{ timer }}</p>
+            <p><b>Project : </b>{{ timer.project }}</p>
+            <p><b>Time total : </b>{{ timer.get_time_total|display_format_time }} </p>
+
+            <div class="pull-left">
+                <a href="#" role="button" class="btn btn-success btn-xs">
+                    <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+                    Start new timer
+                </a>
+            </div>
+
+            <div class="pull-right">
+                <a href="{% url 'core_download_time_entries' timer_id=timer.id %}" role="button"
+                   class="btn btn-info btn-xs">
+                    <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
+                    Download time entries
+                </a>
+
+                <a href="{% url 'core_upload_time_entries' timer_id=timer.id %}" role="button" class="btn btn-warning btn-xs">
+                    <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>
+                    Upload time entries
+                </a>
+            </div>
+            <br /><br />
+            <table class="table table-condensed table-lists-contacts">
+                <thead>
+                    <tr>
+                        <th> Date</th>
+                        <th> Time</th>
+                        <th> Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for entry in timer.timeentry_set.all|dictsortreversed:'date' %}
+                    <tr>
+                        <td>{{ entry.date }}</td>
+                        <td>{{ entry.time|display_format_time }}</td>
+                        <td>{{ entry.comments }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
