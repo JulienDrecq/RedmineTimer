@@ -66,6 +66,9 @@ hr {
     color: gray;
     font-weight: bold;
     margin-left: 5px;
+}
+
+.table-lists-entry {
     margin-bottom: 50px;
 }
 
@@ -73,7 +76,11 @@ hr {
     border-bottom: 3px solid #E54E53;
 }
 
-.previous_next {
+.previous_next, .search_date {
+    color: #E54E53;
+}
+
+.previous_next:hover, .search_date:hover {
     color: #E54E53;
 }
 
@@ -92,5 +99,11 @@ hr {
     display: none;
 }
 /** END NEW TIMER **/
+
+/** FILTER DATE **/
+#sandbox-start-date, #sandbox-end-date {
+    margin-top:30px;
+}
+/** END FILTER DATE **/
 
 

@@ -8,7 +8,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title" id="new-timer-label">Add new timer</h4>
                 </div>
-                <form class="form-horizontal" method="post" action="/new_timer" id="form-new-timer">
+                <form class="form-horizontal" method="post" action="{% url 'core_new_timer' %}" id="form-new-timer">
                     {% csrf_token %}
                     <div class="modal-body">
                         <fieldset>
@@ -35,7 +35,9 @@
                     </div>
                 </form>
                 <div class="modal-footer start-timer">
-                    <a class="next-url"><button class="btn btn-success">Start timer</button></a>
+                    <a class="next-url"><button class="btn btn-success btn-sm">
+                        <span class="glyphicon glyphicon-play"></span>
+                        Start timer</button></a>
                 </div>
             </div>
         </div>

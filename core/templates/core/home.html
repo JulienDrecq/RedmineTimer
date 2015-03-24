@@ -1,8 +1,9 @@
 {% extends "core/base/base.html" %}
 
 {% load i18n %}
+{% load tools %}
 
-{% block title %} {% trans 'Home' %} {% endblock %}
+{% block title %} {{ page_name }} {% endblock %}
 
 {% block header %}
     {% include 'core/base/header.html' %}
@@ -11,49 +12,79 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#new-timer">
+        <div class="col-md-6 col-md-offset-3">
+            <br />
+            {% for message in messages %}
+                <div
+                    {% if message.extra_tags %}
+                        class="alert text-center {{ message.extra_tags }}"
+                    {% else %}
+                        class="alert text-center alert-info"
+                    {% endif %}
+                    role="alert">
+                        {% if message.extra_tags == 'alert-danger' %}
+                            An error has occurred !
+                            <br />
+                        {% endif %}
+                        {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row">
+        {% if last_week_start or last_week_end %}
+            <a href="{% url 'core_from_to_time_entries' start_date=last_week_start end_date=last_week_end %}" class="previous_next"><span class="glyphicon glyphicon-chevron-left"/></a>
+            Last Week
+        {% endif %}
+
+
+        <a href="#" data-toggle="modal" data-target="#filter-date" class="search_date">
+            <span class="glyphicon glyphicon-calendar"></span>
+        </a>
+    </div>
+
+    <div class="row">
+        <button type="button" class="btn btn-success pull-right btn-sm" data-toggle="modal" data-target="#new-timer">
             <span class="glyphicon glyphicon-plus-sign"></span> New timer
         </button>
 
         <br /><br /><br />
-        <table class="table table-condensed table-lists-contacts">
-            <thead>
-                <tr>
-                    <th> Description</th>
-                    <th> Projet</th>
-                    <th> Link On Redmine </th>
-                    <th> Timer </th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for issue in issues %}
-                <tr>
-                    <td style="width: 50%;"> <a href="{% url 'core_issue' issue_id=issue.id %}">{{ issue }}</a></td>
-                    <td style="width: 25%;"> {{ issue.project }}</td>
-                    <td> <a target="_blank" href="{{ issue.get_link_issue_on_redmine }}">#{{ issue.redmine_issue_id }}</a>
-                    <td> <a href=""><span class="glyphicon glyphicon-play"> </span></a> <a href=""><span class="glyphicon glyphicon-stop"> </span></a> </td>
-                    <td>
-                        <span class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <span class="glyphicon glyphicon-cog"></span> <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li> <a href="#"><span class="glyphicon glyphicon-refresh"></span> Synchronize </a></li>
-                                <li> <a href="#"><span class="glyphicon glyphicon-pencil"></span> Edit</a></li>
-                                <li> <a href="#"><span class="glyphicon glyphicon-remove"></span> Unlink</a></li>
-                            </ul>
-                        </span>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        {% for value in res_entries %}
+            {% if value.entries %}
+                <span class="table-header"> {{ value.date }} ( {{ value.time_total_day|display_format_time }} )</span>
+                <table class="table table-condensed table-lists-entry">
+                    <thead>
+                        <tr>
+                            <th> Description</th>
+                            <th> Projet</th>
+                            <th> Link On Redmine </th>
+                            <th> Time </th>
+                            <th> Action </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key, value in value.entries.items %}
+                            <tr>
+                                <td style="width: 50%;"> <a href="{% url 'core_timer' timer_id=value.timer.id %}">{{ value.timer }}</a></td>
+                                <td style="width: 25%;"> {{ value.timer.project }}</td>
+                                <td> <a target="_blank" href="{{ timer.get_link_issue_on_redmine }}">#{{ value.timer.redmine_issue_id }}</a>
+                                <td style="width: 5%;"> {{ value.time_timer|display_format_time }}</td>
+                                <td> <a href=""><span class="glyphicon glyphicon-play"> </span></a> <a href=""><span class="glyphicon glyphicon-stop"> </span></a> </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        {% endfor %}
     </div>
 </div>
 
 {% block new_timer %}
     {% include 'core/modal/new_timer.html' %}
+{% endblock %}
+{% block filter_date %}
+    {% include 'core/modal/filter_date.html' %}
 {% endblock %}
 
 {% endblock %}

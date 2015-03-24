@@ -1,3 +1,4 @@
+// NEW TIMER
 $(document).ready(function(){
 // FORM-NEW-TIMER
     $("#form-new-timer").submit( function() {
@@ -50,4 +51,27 @@ $('#new-timer').on('hidden.bs.modal', function (e) {
     $('.form-error').css("display", "none");
     $('.form-error').html('');
     $('.number-issue').css("display", "none");
-})
+});
+// END NEW TIMER
+
+// FILTER DATE
+$('#sandbox-start-date .input-group.date').datepicker({
+    format: "yyyy-mm-dd",
+    autoclose: true,
+    todayHighlight: true,
+    orientation: "top auto"
+});
+
+$('#sandbox-end-date .input-group.date').datepicker({
+    format: "yyyy-mm-dd",
+    autoclose: true,
+    todayHighlight: true,
+    orientation: "top auto"
+});
+
+$('#filter-date').on('hidden.bs.modal', function (e) {
+    //Reset modal when modal is close
+    $("#form-filter-date :input[name='start_date']").val('');
+    $("#form-filter-date :input[name='end_date']").val('');
+});
+// END FILTER DATE
