@@ -50,6 +50,13 @@
         </button>
 
         <br /><br /><br />
+        {% if not res_entries %}
+            <div class="col-md-6 col-md-offset-3">
+                <div class="well text-center">
+                    No time entries :(
+                </div>
+            </div>
+        {% endif %}
         {% for value in res_entries %}
             {% if value.entries %}
                 <span class="table-header"> {{ value.date }} ( {{ value.time_total_day|display_format_time }} )</span>

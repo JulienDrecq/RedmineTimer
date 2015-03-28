@@ -28,9 +28,19 @@ class IssueForm(forms.Form):
 class FilterDateForm(forms.Form):
     start_date = forms.DateField(label=_('Start date'), widget=forms.DateInput(attrs={'class': 'form-control',
                                                                                       'placeholder': _('Start date ...'),
-                                                                                      'required': '', 'tabindex': 1,
-                                                                                      'autofocus': '1'}))
+                                                                                      'required': '', 'tabindex': 1}))
     end_date = forms.DateField(label=_('End date'), widget=forms.DateInput(attrs={'class': 'form-control',
                                                                                   'placeholder': _('End date ...'),
-                                                                                  'required': '', 'tabindex': 1,
-                                                                                  'autofocus': '1'}))
+                                                                                  'required': '', 'tabindex': 2}))
+
+
+class TimeEntryEdit(forms.Form):
+    date = forms.DateField(label=_('Date'), widget=forms.DateInput(attrs={'class': 'form-control',
+                                                                          'placeholder': _('Date'), 'required': '',
+                                                                          'tabindex': 1, 'autofocus': '1'}))
+    time = forms.CharField(label=_('Time'), widget=forms.NumberInput(attrs={'class': 'form-control',
+                                                                            'placeholder': _('Time'),
+                                                                            'required': '', 'tabindex': 2}))
+    comments = forms.CharField(label=_('Comment'), widget=forms.TextInput(attrs={'class': 'form-control',
+                                                                                'placeholder': _('Enter a comment'),
+                                                                                'tabindex': 3}), required=False)

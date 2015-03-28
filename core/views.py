@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
-from core.forms import LoginForm, IssueForm, FilterDateForm
+from core.forms import LoginForm, IssueForm, FilterDateForm, TimeEntryEdit
 from core.models import Timer, TimeEntry
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
@@ -43,7 +43,8 @@ def get_entries(user, current_week_start, current_week_end):
                 entries[entry.timer.id]['time_timer'] += entry.time
             else:
                 entries.update({entry.timer.id: {'timer': entry.timer, 'time_timer': entry.time}})
-        res_entries.append({'date': date, 'entries': entries, 'time_total_day': time_total_day})
+        if entries:
+            res_entries.append({'date': date, 'entries': entries, 'time_total_day': time_total_day})
         current_week_start += timedelta(days=1)
     res_entries.reverse()
     return res_entries
@@ -205,33 +206,108 @@ def download_time_entries(request, timer_id):
                     timeentry.time = entry.hours
                     timeentry.date = entry.spent_on
                     timeentry.comments = entry.comments
+                    timeentry.is_synchronize = True
                     timeentry.save()
                 else:
                     created_entry = TimeEntry(user=request.user, timer=timer, redmine_timentry_id=entry.id,
-                                              time=entry.hours, comments=entry.comments, date=entry.spent_on)
+                                              time=entry.hours, comments=entry.comments, date=entry.spent_on,
+                                              is_synchronize=True)
                     created_entry.save()
-        messages.info(request, "Time entries successful imported/upated !", extra_tags='alert-success')
+        messages.info(request, "Time entrie(s) successful imported/upated !", extra_tags='alert-success')
     except Exception, e:
         messages.error(request, e.message, extra_tags='alert-danger')
     return redirect(reverse(view_timer, kwargs={'timer_id': timer.id}), locals())
 
 
 @login_required(login_url=LOGIN_URL)
-def upload_time_entries(request, timer_id):
+def upload_time_entries(request, timer_id, times_entries=[]):
     timer = Timer.objects.filter(Q(user_id=request.user, id=timer_id))
     if not timer:
         return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
     timer = timer[0]
     try:
         redmine = request.session['session_redmine']
-        for entry in timer.timeentry_set.all():
+        if not times_entries:
+            times_entries = timer.timeentry_set.all()
+        for entry in times_entries:
             if entry.redmine_timentry_id:
                 redmine.time_entry.update(entry.redmine_timentry_id, issue_id=timer.redmine_issue_id,
                                           spent_on=str(entry.date), hours=entry.time, comments=entry.comments)
             else:
                 #TODO Create time entry on redmine
                 pass
-        messages.info(request, "Time entries successful uploaded !", extra_tags='alert-success')
+            entry.is_synchronize = True
+            entry.save()
+        messages.info(request, "Time entrie(s) successful uploaded !", extra_tags='alert-success')
     except Exception, e:
         messages.error(request, e.message, extra_tags='alert-danger')
+    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+
+
+@login_required(login_url=LOGIN_URL)
+def edit_entry(request, timer_id, entry_id):
+    timer = Timer.objects.filter(Q(user=request.user, id=timer_id))
+    if not timer:
+        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+    timer = timer[0]
+    edit_entry = TimeEntry.objects.filter(Q(user=request.user, id=entry_id, timer=timer))
+    if not edit_entry:
+        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+    edit_entry = edit_entry[0]
+    try:
+        if request.method == "POST":
+            entry_edit_form = TimeEntryEdit(request.POST)
+            if entry_edit_form.is_valid():
+                date = entry_edit_form.cleaned_data['date']
+                time = entry_edit_form.cleaned_data['time']
+                comments = entry_edit_form.cleaned_data['comments']
+                edit_entry.date = date
+                edit_entry.time = time
+                edit_entry.comments = comments
+                edit_entry.is_synchronize = False
+                edit_entry.save()
+                return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+        else:
+            entry_edit_form = TimeEntryEdit(initial={
+                'date': edit_entry.date,
+                'time': edit_entry.time,
+                'comments': edit_entry.comments,
+            })
+    except Exception, e:
+        messages.error(request, e.message, extra_tags='alert-danger')
+    return render(request, URL_RENDER['view_timer'], locals())
+
+
+@login_required(login_url=LOGIN_URL)
+def delete_entry(request, timer_id, entry_id):
+    timer = Timer.objects.filter(Q(user=request.user, id=timer_id))
+    if not timer:
+        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+    timer = timer[0]
+    entry = TimeEntry.objects.filter(Q(user=request.user, id=entry_id, timer=timer))
+    if not entry:
+        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+    entry = entry[0]
+    try:
+        if entry:
+            if entry.redmine_timentry_id:
+                redmine = request.session['session_redmine']
+                delete_on_redmine = redmine.time_entry.delete(entry.redmine_timentry_id)
+            entry.delete()
+            messages.info(request, "Time entry successful deleted !", extra_tags='alert-success')
+    except Exception, e:
+        messages.error(request, e.message, extra_tags='alert-danger')
+    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+
+
+@login_required(login_url=LOGIN_URL)
+def upload_entry(request, timer_id, entry_id):
+    timer = Timer.objects.filter(Q(user=request.user, id=timer_id))
+    if not timer:
+        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+    timer = timer[0]
+    entry = TimeEntry.objects.filter(Q(user=request.user, id=entry_id, timer=timer))
+    if not entry:
+        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+    upload_time_entries(request, timer_id, [entry[0]])
     return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())

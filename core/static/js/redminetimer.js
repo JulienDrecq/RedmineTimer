@@ -69,6 +69,13 @@ $('#sandbox-end-date .input-group.date').datepicker({
     orientation: "top auto"
 });
 
+$('#sandbox-edit-entry .input-group.date').datepicker({
+    format: "yyyy-mm-dd",
+    autoclose: true,
+    todayHighlight: true,
+    orientation: "top auto"
+});
+
 $('#filter-date').on('hidden.bs.modal', function (e) {
     //Reset modal when modal is close
     $("#form-filter-date :input[name='start_date']").val('');

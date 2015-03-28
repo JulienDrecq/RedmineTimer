@@ -13,7 +13,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
-            <a href="{% url 'core_home' %}" role="button" class="btn btn-danger btn-xs pull-left">
+            <a href="#" onClick="history.go(-1); return false;" role="button" class="btn btn-danger btn-xs pull-left">
                 <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
                 Back
             </a>
@@ -83,19 +83,60 @@
                         <th> Date</th>
                         <th> Time</th>
                         <th> Comments</th>
+                        <th> </th>
                     </tr>
                 </thead>
                 <tbody>
                 {% for entry in timer.timeentry_set.all|dictsortreversed:'date' %}
-                    <tr>
-                        <td>{{ entry.date }}</td>
-                        <td>{{ entry.time|display_format_time }}</td>
-                        <td>{{ entry.comments }}</td>
-                    </tr>
+                    {% if entry.id == edit_entry.id %}
+                        <tr>
+                            <form method="post" action="{% url 'core_edit_entry' timer_id=timer.id entry_id=entry.id %}">
+                                {% csrf_token %}
+                                <td style="width: 27%;">
+                                    <div id="sandbox-edit-entry">
+                                        <div class="input-group date">
+                                            {{ entry_edit_form.date }}
+                                            <span class="input-group-addon">
+                                                <i class="glyphicon glyphicon-calendar"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="width: 15%;">{{ entry_edit_form.time }}</td>
+                                <td style="width: 33%;">{{ entry_edit_form.comments }} </td>
+                                <td style="width: 25%;vertical-align: middle;" class="text-center">
+                                    <button role="button" type="submit" class="btn btn-success btn-xs">
+                                        <span class="glyphicon glyphicon-save"></span>
+                                    </button>
+                                    <a href="#" onClick="history.go(-1); return false;" class="btn btn-danger btn-xs">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </a>
+                                </td>
+                            </form>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td style="width: 20%;">
+                                {{ entry.date|date:"Y-m-d" }}
+                            </td>
+                            <td style="width: 15%;">{{ entry.time|display_format_time }}</td>
+                            <td style="width: 40%;">{{ entry.comments }}</td>
+                            <td style="width: 25%;" class="text-center">
+                                <a href="{% url 'core_edit_entry' timer_id=timer.id entry_id=entry.id %}" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-edit"></span></a>
+                                <a href="{% url 'core_delete_entry' timer_id=timer.id entry_id=entry.id %}" onclick="return confirm('{% trans 'Do you really want to delete time entry ?' %}')" class="btn btn-danger btn-xs">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+                                {% if not entry.is_synchronize %}
+                                    <a href="{% url 'core_upload_entry' timer_id=timer.id entry_id=entry.id %}" class="btn btn-warning btn-xs">
+                                        <span class="glyphicon glyphicon-upload"></span>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
                 </tbody>
             </table>
-
         </div>
     </div>
 </div>

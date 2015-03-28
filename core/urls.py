@@ -17,4 +17,7 @@ urlpatterns = patterns('',
     url(r'^from/(?P<start_date>\d{4}-\d{2}-\d{2})/to/(?P<end_date>\d{4}-\d{2}-\d{2})$',
         'core.views.from_to_time_entries', name='core_from_to_time_entries'),
     url(r'^filter_date', 'core.views.filter_date', name='core_filter_date'),
+    url(r'^timer/(?P<timer_id>\d+)/entry/(?P<entry_id>\d+)/edit', 'core.views.edit_entry', name='core_edit_entry'),
+    url(r'^timer/(?P<timer_id>\d+)/entry/(?P<entry_id>\d+)/delete', 'core.views.delete_entry', name='core_delete_entry'),
+    url(r'^timer/(?P<timer_id>\d+)/entry/(?P<entry_id>\d+)/upload', 'core.views.upload_entry', name='core_upload_entry'),
 )

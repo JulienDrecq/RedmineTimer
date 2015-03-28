@@ -34,3 +34,4 @@ class TimeEntry(models.Model):
     start_date = models.DateTimeField(auto_now_add=False, null=True)
     end_date = models.DateTimeField(auto_now_add=False, null=True)
     comments = models.CharField(max_length=256)
+    is_synchronize = models.BooleanField(default=False)
