@@ -76,11 +76,11 @@ hr {
     border-bottom: 3px solid #E54E53;
 }
 
-.previous_next, .search_date {
+.previous_next, .search_date, .refresh {
     color: #E54E53;
 }
 
-.previous_next:hover, .search_date:hover {
+.previous_next:hover, .search_date:hover, .refresh:hover {
     color: #E54E53;
 }
 

@@ -8,12 +8,13 @@ class Timer(models.Model):
     redmine_issue_id = models.BigIntegerField()
     name = models.CharField(max_length=256)
     project = models.CharField(max_length=256)
+    tracker = models.CharField(max_length=256)
 
     def __unicode__(self):
-        return u"#%s - %s" % (self.redmine_issue_id, self.name)
+        return u"%s #%s - %s" % (self.tracker, self.redmine_issue_id, self.name)
 
     def __str__(self):
-        return "%s - %s" % (self.redmine_issue_id, self.name)
+        return "%s %s - %s" % (self.tracker, self.redmine_issue_id, self.name)
 
     def get_link_issue_on_redmine(self):
         return u"%s/issues/%s" % (settings.REDMINE_SERVER_URL, self.redmine_issue_id)

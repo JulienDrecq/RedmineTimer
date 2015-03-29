@@ -47,6 +47,9 @@
             <a target="_blank" href="{{ timer.get_link_issue_on_redmine }}">
                 #{{ timer.redmine_issue_id }}
             </a>
+            <a href="{% url 'core_refresh_issue' timer_id=timer.id %}" role="button" class="btn-xs refresh">
+                <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+            </a>
         </h4>
     </div>
 
@@ -108,7 +111,7 @@
                                     <button role="button" type="submit" class="btn btn-success btn-xs">
                                         <span class="glyphicon glyphicon-save"></span>
                                     </button>
-                                    <a href="#" onClick="history.go(-1); return false;" class="btn btn-danger btn-xs">
+                                    <a href="{% url 'core_timer' timer_id=timer.id %}" class="btn btn-danger btn-xs">
                                         <span class="glyphicon glyphicon-remove"></span>
                                     </a>
                                 </td>

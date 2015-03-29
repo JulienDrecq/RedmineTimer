@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from redmine_auth import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.db.models import Q
 from redmine import Redmine
 from redmine.exceptions import ForbiddenError, ResourceNotFoundError
@@ -164,16 +164,14 @@ def start_new_timer(request):
             try:
                 issue = redmine.issue.get(int(number_issue))
                 project_name = issue.project.name
-                search_timer = Timer.objects.filter(Q(user=request.user,
-                                                      redmine_issue_id=number_issue)).order_by('id')
-                if search_timer:
-                    timer = search_timer[0]
-                    return redirect(reverse(view_timer, kwargs={'timer_id': timer.id}))
-                else:
-                    created_timer = Timer(user=request.user, redmine_issue_id=number_issue,
-                                          name=str(issue), project=project_name)
-                    created_timer.save()
-                    return redirect(reverse(view_timer, kwargs={'timer_id': created_timer.id}))
+                tracker = issue.tracker
+                try:
+                    timer = Timer.objects.get(user=request.user, redmine_issue_id=number_issue)
+                except Timer.DoesNotExist:
+                    timer = Timer(user=request.user, redmine_issue_id=number_issue,
+                                  name=str(issue), project=project_name, tracker=tracker)
+                    timer.save()
+                return redirect(reverse(view_timer, kwargs={'timer_id': timer.id}))
             except Exception, e:
                 messages.error(request, e.message, extra_tags='alert-danger')
     return redirect(reverse(view_home))
@@ -181,50 +179,49 @@ def start_new_timer(request):
 
 @login_required(login_url=LOGIN_URL)
 def view_timer(request, timer_id):
-    timer = Timer.objects.filter(Q(user=request.user, id=timer_id))
-    if not timer:
-        return redirect(reverse(view_home), locals())
-    timer = timer[0]
+    try:
+        timer = Timer.objects.get(user=request.user, id=timer_id)
+    except Timer.DoesNotExist:
+        raise Http404("Timer does not exist")
     return render(request, URL_RENDER['view_timer'], locals())
 
 
 @login_required(login_url=LOGIN_URL)
 def download_time_entries(request, timer_id):
-    timer = Timer.objects.filter(Q(user_id=request.user, id=timer_id))
-    if not timer:
-        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
-    timer = timer[0]
+    try:
+        timer = Timer.objects.get(user=request.user, id=timer_id)
+    except Timer.DoesNotExist:
+        raise Http404("Timer does not exist")
     try:
         redmine = request.session['session_redmine']
         redmine_issue = redmine.issue.get(timer.redmine_issue_id)
         for entry in redmine_issue.time_entries:
             if entry.user.id == request.user.redmineuser.redmine_user_id:
-                search_entry = TimeEntry.objects.filter(Q(user=request.user, redmine_timentry_id=entry.id,
-                                                          timer=timer)).order_by('id')
-                if search_entry:
-                    timeentry = search_entry[0]
-                    timeentry.time = entry.hours
-                    timeentry.date = entry.spent_on
-                    timeentry.comments = entry.comments
-                    timeentry.is_synchronize = True
-                    timeentry.save()
-                else:
-                    created_entry = TimeEntry(user=request.user, timer=timer, redmine_timentry_id=entry.id,
-                                              time=entry.hours, comments=entry.comments, date=entry.spent_on,
-                                              is_synchronize=True)
-                    created_entry.save()
+                    try:
+                        time_entry = TimeEntry.objects.get(user=request.user, redmine_timentry_id=entry.id,
+                                                           timer=timer)
+                        time_entry.time = entry.hours
+                        time_entry.date = entry.spent_on
+                        time_entry.comments = entry.comments
+                        time_entry.is_synchronize = True
+                        time_entry.save()
+                    except TimeEntry.DoesNotExist:
+                        created_entry = TimeEntry(user=request.user, timer=timer, redmine_timentry_id=entry.id,
+                                                  time=entry.hours, comments=entry.comments, date=entry.spent_on,
+                                                  is_synchronize=True)
+                        created_entry.save()
         messages.info(request, "Time entrie(s) successful imported/upated !", extra_tags='alert-success')
     except Exception, e:
         messages.error(request, e.message, extra_tags='alert-danger')
-    return redirect(reverse(view_timer, kwargs={'timer_id': timer.id}), locals())
+    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
 
 
 @login_required(login_url=LOGIN_URL)
 def upload_time_entries(request, timer_id, times_entries=[]):
-    timer = Timer.objects.filter(Q(user_id=request.user, id=timer_id))
-    if not timer:
-        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
-    timer = timer[0]
+    try:
+        timer = Timer.objects.get(user=request.user, id=timer_id)
+    except Timer.DoesNotExist:
+        raise Http404("Timer does not exist")
     try:
         redmine = request.session['session_redmine']
         if not times_entries:
@@ -245,15 +242,33 @@ def upload_time_entries(request, timer_id, times_entries=[]):
 
 
 @login_required(login_url=LOGIN_URL)
+def refresh_issue(request, timer_id):
+    try:
+        timer = Timer.objects.get(user=request.user, id=timer_id)
+    except Timer.DoesNotExist:
+        raise Http404("Timer does not exist")
+    try:
+        redmine = request.session['session_redmine']
+        issue = redmine.issue.get(timer.redmine_issue_id)
+        timer.project = issue.project.name
+        timer.tracker = issue.tracker
+        timer.save()
+        messages.info(request, "Issue successful refresed !", extra_tags='alert-success')
+    except Exception, e:
+        messages.error(request, e.message, extra_tags='alert-danger')
+    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+
+
+@login_required(login_url=LOGIN_URL)
 def edit_entry(request, timer_id, entry_id):
-    timer = Timer.objects.filter(Q(user=request.user, id=timer_id))
-    if not timer:
-        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
-    timer = timer[0]
-    edit_entry = TimeEntry.objects.filter(Q(user=request.user, id=entry_id, timer=timer))
-    if not edit_entry:
-        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
-    edit_entry = edit_entry[0]
+    try:
+        timer = Timer.objects.get(user=request.user, id=timer_id)
+    except Timer.DoesNotExist:
+        raise Http404("Timer does not exist")
+    try:
+        edit_entry = TimeEntry.objects.get(user=request.user, id=entry_id, timer=timer)
+    except TimeEntry.DoesNotExist:
+        raise Http404("Timer entry does not exist")
     try:
         if request.method == "POST":
             entry_edit_form = TimeEntryEdit(request.POST)
@@ -280,14 +295,14 @@ def edit_entry(request, timer_id, entry_id):
 
 @login_required(login_url=LOGIN_URL)
 def delete_entry(request, timer_id, entry_id):
-    timer = Timer.objects.filter(Q(user=request.user, id=timer_id))
-    if not timer:
-        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
-    timer = timer[0]
-    entry = TimeEntry.objects.filter(Q(user=request.user, id=entry_id, timer=timer))
-    if not entry:
-        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
-    entry = entry[0]
+    try:
+        timer = Timer.objects.get(user=request.user, id=timer_id)
+    except Timer.DoesNotExist:
+        raise Http404("Timer does not exist")
+    try:
+        entry = TimeEntry.objects.get(user=request.user, id=entry_id, timer=timer)
+    except TimeEntry.DoesNotExist:
+        raise Http404("Timer entry does not exist")
     try:
         if entry:
             if entry.redmine_timentry_id:
@@ -302,12 +317,13 @@ def delete_entry(request, timer_id, entry_id):
 
 @login_required(login_url=LOGIN_URL)
 def upload_entry(request, timer_id, entry_id):
-    timer = Timer.objects.filter(Q(user=request.user, id=timer_id))
-    if not timer:
-        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
-    timer = timer[0]
-    entry = TimeEntry.objects.filter(Q(user=request.user, id=entry_id, timer=timer))
-    if not entry:
-        return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
-    upload_time_entries(request, timer_id, [entry[0]])
+    try:
+        timer = Timer.objects.get(user=request.user, id=timer_id)
+    except Timer.DoesNotExist:
+        raise Http404("Timer does not exist")
+    try:
+        entry = TimeEntry.objects.get(user=request.user, id=entry_id, timer=timer)
+    except TimeEntry.DoesNotExist:
+        raise Http404("Timer entry does not exist")
+    upload_time_entries(request, timer.id, [entry])
     return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
