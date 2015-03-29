@@ -40,7 +40,8 @@ class TimeEntryEdit(forms.Form):
                                                                           'tabindex': 1, 'autofocus': '1'}))
     time = forms.CharField(label=_('Time'), widget=forms.NumberInput(attrs={'class': 'form-control',
                                                                             'placeholder': _('Time'),
-                                                                            'required': '', 'tabindex': 2}))
+                                                                            'required': '', 'tabindex': 2,
+                                                                            'step': '0.01'}))
     comments = forms.CharField(label=_('Comment'), widget=forms.TextInput(attrs={'class': 'form-control',
                                                                                 'placeholder': _('Enter a comment'),
                                                                                 'tabindex': 3}), required=False)
