@@ -88,7 +88,7 @@ def filter_date(request):
             end_date = filter_date_form.cleaned_data['end_date']
             return redirect(reverse(from_to_time_entries, kwargs={'start_date': start_date,
                                                                   'end_date': end_date}))
-    return redirect(reverse(view_home), locals())
+    return redirect(reverse(view_home))
 
 
 def view_login(request):
@@ -213,7 +213,7 @@ def download_time_entries(request, timer_id):
         messages.info(request, "Time entrie(s) successful imported/upated !", extra_tags='alert-success')
     except Exception, e:
         messages.error(request, e.message, extra_tags='alert-danger')
-    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}))
 
 
 @login_required(login_url=LOGIN_URL)
@@ -228,17 +228,22 @@ def upload_time_entries(request, timer_id, times_entries=[]):
             times_entries = timer.timeentry_set.all()
         for entry in times_entries:
             if entry.redmine_timentry_id:
-                redmine.time_entry.update(entry.redmine_timentry_id, issue_id=timer.redmine_issue_id,
-                                          spent_on=str(entry.date), hours=entry.time, comments=entry.comments)
+                try:
+                    redmine.time_entry.update(entry.redmine_timentry_id, issue_id=timer.redmine_issue_id,
+                                              spent_on=str(entry.date), hours=entry.time, comments=entry.comments)
+                    entry.is_synchronize = True
+                    entry.save()
+                except ResourceNotFoundError:
+                    entry.delete()
+                except Exception, e:
+                    raise e
             else:
                 #TODO Create time entry on redmine
                 pass
-            entry.is_synchronize = True
-            entry.save()
         messages.info(request, "Time entrie(s) successful uploaded !", extra_tags='alert-success')
     except Exception, e:
         messages.error(request, e.message, extra_tags='alert-danger')
-    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}))
 
 
 @login_required(login_url=LOGIN_URL)
@@ -256,7 +261,7 @@ def refresh_issue(request, timer_id):
         messages.info(request, "Issue successful refresed !", extra_tags='alert-success')
     except Exception, e:
         messages.error(request, e.message, extra_tags='alert-danger')
-    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}))
 
 
 @login_required(login_url=LOGIN_URL)
@@ -281,7 +286,7 @@ def edit_entry(request, timer_id, entry_id):
                 edit_entry.comments = comments
                 edit_entry.is_synchronize = False
                 edit_entry.save()
-                return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+                return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}))
         else:
             entry_edit_form = TimeEntryEdit(initial={
                 'date': edit_entry.date,
@@ -307,12 +312,17 @@ def delete_entry(request, timer_id, entry_id):
         if entry:
             if entry.redmine_timentry_id:
                 redmine = request.session['session_redmine']
-                delete_on_redmine = redmine.time_entry.delete(entry.redmine_timentry_id)
+                try:
+                    delete_on_redmine = redmine.time_entry.delete(entry.redmine_timentry_id)
+                except ResourceNotFoundError:
+                    pass
+                except Exception, e:
+                    raise e
             entry.delete()
             messages.info(request, "Time entry successful deleted !", extra_tags='alert-success')
     except Exception, e:
         messages.error(request, e.message, extra_tags='alert-danger')
-    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}))
 
 
 @login_required(login_url=LOGIN_URL)
@@ -326,4 +336,4 @@ def upload_entry(request, timer_id, entry_id):
     except TimeEntry.DoesNotExist:
         raise Http404("Timer entry does not exist")
     upload_time_entries(request, timer.id, [entry])
-    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}), locals())
+    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}))
