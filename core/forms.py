@@ -1,6 +1,5 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from django.forms.extras.widgets import SelectDateWidget
 
 
 class LoginForm(forms.Form):

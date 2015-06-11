@@ -106,4 +106,10 @@ hr {
 }
 /** END FILTER DATE **/
 
+/** TIMER **/
+#button_save, #button_reset {
+    display: none;
+}
+/** END TIMER **/
+
 

@@ -46,7 +46,7 @@
 
     <div class="row">
         <button type="button" class="btn btn-success pull-right btn-sm" data-toggle="modal" data-target="#new-timer">
-            <span class="glyphicon glyphicon-plus-sign"></span> New timer
+            <span class="glyphicon glyphicon-search"></span> Search issue
         </button>
 
         <br /><br /><br />
@@ -64,7 +64,7 @@
                     <thead>
                         <tr>
                             <th> Description</th>
-                            <th> Projet</th>
+                            <th> Project</th>
                             <th> Link On Redmine </th>
                             <th> Time </th>
                             <th> Action </th>
@@ -75,7 +75,7 @@
                             <tr>
                                 <td style="width: 50%;"> <a href="{% url 'core_timer' timer_id=value.timer.id %}">{{ value.timer }}</a></td>
                                 <td style="width: 25%;"> {{ value.timer.project }}</td>
-                                <td> <a target="_blank" href="{{ timer.get_link_issue_on_redmine }}">#{{ value.timer.redmine_issue_id }}</a>
+                                <td> <a target="_blank" href="{{ value.timer.get_link_issue_on_redmine }}">#{{ value.timer.redmine_issue_id }}</a>
                                 <td style="width: 5%;"> {{ value.time_timer|display_format_time }}</td>
                                 <td> <a href=""><span class="glyphicon glyphicon-play"> </span></a> <a href=""><span class="glyphicon glyphicon-stop"> </span></a> </td>
                             </tr>
