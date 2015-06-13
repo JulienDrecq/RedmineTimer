@@ -44,3 +44,11 @@ class TimeEntryEdit(forms.Form):
     comments = forms.CharField(label=_('Comment'), widget=forms.TextInput(attrs={'class': 'form-control',
                                                                                 'placeholder': _('Enter a comment'),
                                                                                 'tabindex': 3}), required=False)
+
+
+class AddTimerForm(forms.Form):
+    time = forms.CharField(label=_('Time'), widget=forms.TextInput(attrs={'class': 'form-control',
+                                                                                'placeholder': _('0 sec'),
+                                                                                'tabindex': 1, 'readonly': ''}),
+                           required=False)
+    time_hidden = forms.IntegerField(label=_('Time hidden'), widget=forms.HiddenInput(), required=False)

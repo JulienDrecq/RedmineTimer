@@ -85,13 +85,17 @@ $('#filter-date').on('hidden.bs.modal', function (e) {
 
 // TIMER
 var TimerIssue = new (function() {
-    var $stopwatch, // Stopwatch element on the page
+    var $stopwatch, $stopwatch2// Stopwatch element on the page
         currentTime = 0, // Current time in hundredths of a second
         updateTimer = function() {
-            $stopwatch.html(formatTime(++currentTime));
+            ++currentTime;
+            $stopwatch.val(formatTime(currentTime));
+            $stopwatch2.val(currentTime);
         },
         init = function() {
-            $stopwatch = $('#stopwatch');
+            $stopwatch = $('#id_time');
+            $stopwatch2 = $('#id_time_hidden');
+            $stopwatch.val('0  sec');
             TimerIssue.Timer = $.timer(updateTimer, 1000, false);
         };
     this.resetStopwatch = function() {
@@ -109,7 +113,6 @@ var TimerIssue = new (function() {
         $button_save.css('display', 'inline-block');
         var $button_reset = $('#button_reset');
         $button_reset.css('display', 'inline-block');
-        $play_pause_timer.children('.timer-text').text('');
         if (this.Timer.isActive) {
             $play_pause_timer.removeClass('btn-success').addClass('btn-warning');
             $play_pause_timer.children('.glyphicon').removeClass('glyphicon-play').addClass('glyphicon-pause');

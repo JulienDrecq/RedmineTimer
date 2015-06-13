@@ -29,7 +29,7 @@ class Timer(models.Model):
 class TimeEntry(models.Model):
     user = models.ForeignKey(User)
     timer = models.ForeignKey(Timer)
-    redmine_timentry_id = models.BigIntegerField()
+    redmine_timentry_id = models.BigIntegerField(null=True)
     time = models.FloatField()
     date = models.DateField()
     start_date = models.DateTimeField(auto_now_add=False, null=True)

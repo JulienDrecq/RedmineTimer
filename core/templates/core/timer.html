@@ -63,31 +63,40 @@
             <p><b>Time total : </b>{{ timer.get_time_total|display_format_time }} </p>
             <br />
             <p><b>Timer</b></p>
-            <div class="pull-left">
-                <span id="stopwatch">0 sec</span>
-                <a href="#" id="play_pause_timer" onclick='TimerIssue.toggle();' role="button" class="btn btn-success btn-xs">
-                    <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
-                    <span class="timer-text"> Start new timer </span>
-                </a>
-                <a href="#" id="button_save" role="button" class="btn btn-primary btn-xs">
-                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span>
-                </a>
-                <a href="#" id="button_reset" onclick='TimerIssue.resetStopwatch();' role="button" class="btn btn-danger btn-xs">
-                    <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
-                </a>
+            <div class="row">
+                <div class="pull-left">
+                    <form method="post" action="{%  url 'core_add_timer' timer_id=timer.id %}">
+                        {% csrf_token %}
+                        <div class="col-xs-5">
+                                {{ add_timer_form.time }}
+                                {{ add_timer_form.time_hidden }}
+                        </div>
+                        <a href="#" id="play_pause_timer" onclick='TimerIssue.toggle();' role="button" class="btn btn-success btn-sm">
+                            <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+                        </a>
+                        <button id="button_save" role="button" type="submit" class="btn btn-primary btn-sm">
+                            <span class="glyphicon glyphicon-save" aria-hidden="true"></span>
+                        </button>
+                        <a href="#" id="button_reset" onclick='TimerIssue.resetStopwatch();' role="button" class="btn btn-danger btn-sm">
+                            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                        </a>
+                    </form>
+                </div>
             </div>
 
-            <div class="pull-right">
-                <a href="{% url 'core_download_time_entries' timer_id=timer.id %}" role="button"
-                   class="btn btn-info btn-xs">
-                    <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
-                    Download time entries
-                </a>
+            <div class="row">
+                <div class="pull-right">
+                    <a href="{% url 'core_download_time_entries' timer_id=timer.id %}" role="button"
+                       class="btn btn-info btn-xs">
+                        <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
+                        Download time entries
+                    </a>
 
-                <a href="{% url 'core_upload_time_entries' timer_id=timer.id %}" role="button" class="btn btn-warning btn-xs">
-                    <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>
-                    Upload time entries
-                </a>
+                    <a href="{% url 'core_upload_time_entries' timer_id=timer.id %}" role="button" class="btn btn-warning btn-xs">
+                        <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>
+                        Upload time entries
+                    </a>
+                </div>
             </div>
             <br /><br />
             <table class="table table-condensed table-lists-contacts">

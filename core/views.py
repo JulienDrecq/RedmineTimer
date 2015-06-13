@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
-from core.forms import LoginForm, IssueForm, FilterDateForm, TimeEntryEdit
+from core.forms import LoginForm, IssueForm, FilterDateForm, TimeEntryEdit, AddTimerForm
 from core.models import Timer, TimeEntry
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
@@ -179,6 +179,7 @@ def start_new_timer(request):
 
 @login_required(login_url=LOGIN_URL)
 def view_timer(request, timer_id):
+    add_timer_form = AddTimerForm()
     try:
         timer = Timer.objects.get(user=request.user, id=timer_id)
     except Timer.DoesNotExist:
@@ -210,7 +211,7 @@ def download_time_entries(request, timer_id):
                                                   time=entry.hours, comments=entry.comments, date=entry.spent_on,
                                                   is_synchronize=True)
                         created_entry.save()
-        messages.info(request, "Time entrie(s) successful imported/upated !", extra_tags='alert-success')
+        messages.info(request, "Time entrie(s) successful imported/updated !", extra_tags='alert-success')
     except Exception, e:
         messages.error(request, e.message, extra_tags='alert-danger')
     return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}))
@@ -266,6 +267,7 @@ def refresh_issue(request, timer_id):
 
 @login_required(login_url=LOGIN_URL)
 def edit_entry(request, timer_id, entry_id):
+    add_timer_form = AddTimerForm()
     try:
         timer = Timer.objects.get(user=request.user, id=timer_id)
     except Timer.DoesNotExist:
@@ -336,4 +338,27 @@ def upload_entry(request, timer_id, entry_id):
     except TimeEntry.DoesNotExist:
         raise Http404("Timer entry does not exist")
     upload_time_entries(request, timer.id, [entry])
+    return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}))
+
+@login_required(login_url=LOGIN_URL)
+def add_timer(request, timer_id):
+    try:
+        timer = Timer.objects.get(user=request.user, id=timer_id)
+    except Timer.DoesNotExist:
+        raise Http404("Timer does not exist")
+    try:
+        if request.method == "POST":
+            add_timer_form = AddTimerForm(request.POST)
+            if add_timer_form.is_valid():
+                time = add_timer_form.cleaned_data['time_hidden']
+                if time <= 900:
+                    time = 900 / 3600.
+                else:
+                    time /= 3600.
+                created_entry = TimeEntry(user=request.user, timer=timer, time=time, date=datetime.now(),
+                                          is_synchronize=False)
+                created_entry.save()
+                messages.info(request, "Time entrie successful created !", extra_tags='alert-success')
+    except Exception, e:
+        messages.error(request, e.message, extra_tags='alert-danger')
     return redirect(reverse(view_timer, kwargs={'timer_id': timer_id}))
